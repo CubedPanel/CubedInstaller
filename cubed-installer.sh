@@ -1,24 +1,24 @@
 #!/bin/bash
+
 echo "Début de l'installation des versions de Java pour Minecraft..."
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y software-properties-common
-sudo add-apt-repository ppa:adoptopenjdk/ppa
-sudo apt update
-echo "Installation de Java 8..."
-sudo apt install adoptopenjdk-8-hotspot -y
-echo "Installation de Java 11..."
-sudo apt install adoptopenjdk-11-hotspot -y
-echo "Installation de Java 16..."
-sudo apt install adoptopenjdk-16-hotspot -y
-echo "Installation de Java 17..."
-sudo apt install adoptopenjdk-17-hotspot -y
-echo "Vérification des versions de Java installées..."
+
+cd /tmp
+wget https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jdk_x64_linux_hotspot_8u432b06.tar.gz
+tar -xvzf OpenJDK8U-jdk_x64_linux_hotspot_8u432b06.tar.gz -C /opt/
+
+wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.25%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz
+tar -xvzf OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz -C /opt/
+
+wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11.tar.gz
+tar -xvzf OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11.tar.gz -C /opt/
+
+sudo ln -s /opt/OpenJDK8U-jdk_x64_linux_hotspot_8u432b06/bin/java /usr/bin/java8
+sudo ln -s /opt/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9/bin/java /usr/bin/java11
+sudo ln -s /opt/OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11/bin/java /usr/bin/java17
+
 java -version
 javac -version
 
-echo "Définition de Java 17 comme version par défaut..."
 sudo update-alternatives --config java
 
-# Afficher un message de fin
 echo "Installation des versions de Java terminée avec succès !"
-echo "Vous pouvez maintenant exécuter Minecraft avec la version de Java de votre choix."
