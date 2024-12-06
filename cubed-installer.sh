@@ -118,7 +118,9 @@ sudo mv composer.phar /usr/local/bin/composer
 sudo composer install
 
 echo -e "${YELLOW}[?] Création du fichier /etc/cubed/config.yml...${NC}"
+
 sudo mkdir -p /etc/cubed
+
 cat > /etc/cubed/config.yml <<EOL
 database:
   host: "localhost"
