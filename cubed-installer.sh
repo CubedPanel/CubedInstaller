@@ -45,11 +45,11 @@ sudo mysql -e "USE panel; INSERT INTO informations (panel_name) VALUES ('${panel
 
 echo -e "${YELLOW}[?] Entrez le port de début (par défaut : 100) :${NC}"
 read start_port
-start_port=${start_port:-1000}
+start_port=${start_port:-100}
 
 echo -e "${YELLOW}[?] Entrez le port de fin (par défaut : 500) :${NC}"
 read end_port
-end_port=${end_port:-5000}
+end_port=${end_port:-500}
 
 for port in $(seq $start_port $end_port); do
 sql_values=""
