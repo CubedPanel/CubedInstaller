@@ -54,6 +54,7 @@ end_port=${end_port:-5000}
 for port in $(seq $start_port $end_port); do
     sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES (${port});"
     sudo iptables -A INPUT -p tcp --dport $port -j ACCEPT
+    sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 done
 
 if [ ! -d "/etc/iptables" ]; then
