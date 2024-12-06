@@ -52,7 +52,13 @@ read end_port
 end_port=${end_port:-5000}
 
 for port in $(seq $start_port $end_port); do
-    sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES (${port});"
+sql_values=""
+for port in $(seq $start_port $end_port); do
+    sql_values+="(${port}),"
+done
+sql_values=${sql_values%,}
+
+sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES ${sql_values};"
 sudo iptables -A INPUT -p tcp --dport ${start_port}:${end_port} -j ACCEPT
     sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 done
