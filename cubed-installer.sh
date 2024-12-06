@@ -43,11 +43,11 @@ echo -e "${YELLOW}[?] Entrez le nom du panel :${NC}"
 read panel_name
 sudo mysql -e "USE panel; INSERT INTO informations (panel_name) VALUES ('${panel_name}');"
 
-echo -e "${YELLOW}[?] Entrez le port de début (par défaut : 1000) :${NC}"
+echo -e "${YELLOW}[?] Entrez le port de début (par défaut : 100) :${NC}"
 read start_port
 start_port=${start_port:-1000}
 
-echo -e "${YELLOW}[?] Entrez le port de fin (par défaut : 5000) :${NC}"
+echo -e "${YELLOW}[?] Entrez le port de fin (par défaut : 500) :${NC}"
 read end_port
 end_port=${end_port:-5000}
 
