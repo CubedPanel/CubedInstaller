@@ -56,5 +56,9 @@ for port in $(seq $start_port $end_port); do
     sudo iptables -A INPUT -p tcp --dport $port -j ACCEPT
 done
 
+if [ ! -d "/etc/iptables" ]; then
+    sudo mkdir -p /etc/iptables
+fi
+
 sudo iptables-save > /etc/iptables/rules.v4
 echo -e "${GREEN}Installation terminée avec succès.${NC}"
