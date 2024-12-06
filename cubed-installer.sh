@@ -5,7 +5,7 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 sudo apt update && sudo apt full-upgrade -y
-sudo apt install -y php php-cli php-fpm php-mysql php-xml php-mbstring php-json composer git php-yaml mariadb-server mariadb-client
+sudo apt install -y php php-cli php-fpm php-mysql php-xml php-mbstring php-json composer git php-yaml mariadb-server mariadb-client unzip wget
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 
@@ -61,5 +61,14 @@ database:
   user: root
   password: ${db_password}
 EOF
+
+echo -e "${YELLOW}[?] Téléchargement de CubedPanel...${NC}"
+wget -q https://github.com/CubedPanel/CubedPanel/archive/refs/heads/main.zip -O /tmp/cubedpanel.zip
+
+echo -e "${YELLOW}[?] Extraction de CubedPanel dans /var/www/html${NC}"
+sudo unzip -o /tmp/cubedpanel.zip -d /var/www/html
+sudo mv /var/www/html/CubedPanel-main/* /var/www/html/
+sudo rm -rf /var/www/html/CubedPanel-main
+sudo rm /tmp/cubedpanel.zip
 
 echo -e "${GREEN}Installation terminée.${NC}"
