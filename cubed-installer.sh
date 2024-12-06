@@ -1,24 +1,60 @@
 #!/bin/bash
 
-echo "Début de l'installation des versions de Java pour Minecraft..."
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-cd /tmp
-wget https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jdk_x64_linux_hotspot_8u432b06.tar.gz
-tar -xvzf OpenJDK8U-jdk_x64_linux_hotspot_8u432b06.tar.gz -C /opt/
+sudo apt update && sudo apt full-upgrade -y
+sudo apt install -y iptables mariadb-server mariadb-client
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
 
-wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.25%2B9/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz
-tar -xvzf OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9.tar.gz -C /opt/
+echo -e "${YELLOW}[?] Que voulez-vous comme mot de passe pour la base de données ?${NC}"
+read -s db_password
+sudo mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${db_password}');"
+sudo mysql -e "CREATE USER 'root'@'%' IDENTIFIED BY '${db_password}';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;"
+sudo mysql -e "FLUSH PRIVILEGES;"
 
-wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.13%2B11/OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11.tar.gz
-tar -xvzf OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11.tar.gz -C /opt/
+sudo mysql -e "CREATE DATABASE panel;"
+sudo mysql -e "USE panel; CREATE TABLE admins (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), password VARCHAR(255));"
+sudo mysql -e "USE panel; CREATE TABLE informations (id INT AUTO_INCREMENT PRIMARY KEY, panel_name VARCHAR(255));"
+sudo mysql -e "USE panel; CREATE TABLE ports (id INT AUTO_INCREMENT PRIMARY KEY, port INT);"
 
-sudo ln -s /opt/OpenJDK8U-jdk_x64_linux_hotspot_8u432b06/bin/java /usr/bin/java8
-sudo ln -s /opt/OpenJDK11U-jdk_x64_linux_hotspot_11.0.25_9/bin/java /usr/bin/java11
-sudo ln -s /opt/OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.13_11/bin/java /usr/bin/java17
+while true; do
+    echo -e "${YELLOW}[?] Entrez l'email de l'administrateur :${NC}"
+    read admin_email
+    echo -e "${YELLOW}[?] Entrez le mot de passe de l'administrateur :${NC}"
+    read -s admin_password
+    echo -e "${YELLOW}[?] Confirmez le mot de passe de l'administrateur :${NC}"
+    read -s admin_password_confirm
 
-java -version
-javac -version
+    if [ "$admin_password" == "$admin_password_confirm" ]; then
+        hashed_password=$(echo -n "$admin_password" | sha256sum | awk '{print $1}')
+        sudo mysql -e "USE panel; INSERT INTO admins (email, password) VALUES ('${admin_email}', '${hashed_password}');"
+        break
+    else
+        echo -e "${RED}Les mots de passe ne correspondent pas. Veuillez réessayer.${NC}"
+    fi
+done
 
-sudo update-alternatives --config java
+echo -e "${YELLOW}[?] Entrez le nom du panel :${NC}"
+read panel_name
+sudo mysql -e "USE panel; INSERT INTO informations (panel_name) VALUES ('${panel_name}');"
 
-echo "Installation des versions de Java terminée avec succès !"
+echo -e "${YELLOW}[?] Entrez le port de début (par défaut : 1000) :${NC}"
+read start_port
+start_port=${start_port:-1000}
+
+echo -e "${YELLOW}[?] Entrez le port de fin (par défaut : 5000) :${NC}"
+read end_port
+end_port=${end_port:-5000}
+
+for port in $(seq $start_port $end_port); do
+    sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES (${port});"
+    sudo iptables -A INPUT -p tcp --dport $port -j ACCEPT
+done
+
+sudo iptables-save > /etc/iptables/rules.v4
+echo -e "${GREEN}Installation terminée avec succès.${NC}"
