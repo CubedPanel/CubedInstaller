@@ -86,8 +86,13 @@ sudo rm -f /var/www/html/index.html
 
 echo -e "${YELLOW}[?] Téléchargement de CubedPanel...${NC}"
 wget -q https://github.com/CubedPanel/CubedPanel/archive/refs/heads/main.zip -O /tmp/cubedpanel.zip
-sudo unzip -o /tmp/cubedpanel.zip -d /var/www/html
+sudo unzip -o /tmp/cubedpanel.zip -d /tmp/cubedpanel
+
+first_folder=$(ls -d /tmp/cubedpanel/*/ | head -n 1)
+sudo cp -r $first_folder/* /var/www/html
+
 sudo rm -f /tmp/cubedpanel.zip
+sudo rm -rf /tmp/cubedpanel
 
 echo -e "${YELLOW}[?] Création du fichier composer.json...${NC}"
 cat > /var/www/html/composer.json <<EOL
