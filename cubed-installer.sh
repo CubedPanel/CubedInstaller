@@ -10,8 +10,19 @@ sudo apt install -y iptables mariadb-server mariadb-client
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 
-echo -e "${YELLOW}[?] Que voulez-vous comme mot de passe pour la base de données ?${NC}"
-read -s db_password
+while true; do
+    echo -e "${YELLOW}[?] Entrez le mot de passe souhaité pour la base de données :${NC}"
+    read -s db_password
+    echo -e "${YELLOW}[?] Confirmez le mot de passe pour la base de données :${NC}"
+    read -s db_password_confirm
+
+    if [ "$db_password" == "$db_password_confirm" ]; then
+        break
+    else
+        echo -e "${RED}Les mots de passe ne correspondent pas. Veuillez réessayer.${NC}"
+    fi
+done
+
 sudo mysql -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${db_password}');"
 sudo mysql -e "CREATE USER 'root'@'%' IDENTIFIED BY '${db_password}';"
 sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;"
@@ -52,14 +63,14 @@ read end_port
 end_port=${end_port:-500}
 
 for port in $(seq $start_port $end_port); do
-sql_values=""
-for port in $(seq $start_port $end_port); do
-    sql_values+="(${port}),"
-done
-sql_values=${sql_values%,}
+    sql_values=""
+    for port in $(seq $start_port $end_port); do
+        sql_values+="(${port}),"
+    done
+    sql_values=${sql_values%,}
 
-sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES ${sql_values};"
-sudo iptables -A INPUT -p tcp --dport ${start_port}:${end_port} -j ACCEPT
+    sudo mysql -e "USE panel; INSERT INTO ports (port) VALUES ${sql_values};"
+    sudo iptables -A INPUT -p tcp --dport ${start_port}:${end_port} -j ACCEPT
     sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 done
 
