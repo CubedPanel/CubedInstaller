@@ -8,6 +8,7 @@ NC='\033[0m'
 sudo apt update && sudo apt full-upgrade -y
 echo -e "${YELLOW}[?] Installation de PHP...${NC}"
 sudo apt install -y php php-cli php-fpm php-mysql php-xml php-mbstring php-json php-yaml unzip curl git
+
 php_version=$(php -v | head -n 1)
 echo -e "${GREEN}PHP installé avec succès : $php_version${NC}"
 
@@ -66,7 +67,6 @@ end_port=${end_port:-500}
 
 for port in $(seq $start_port $end_port); do
     sql_values=""
-
     for port in $(seq $start_port $end_port); do
         sql_values+="(${port}),"
     done
@@ -123,7 +123,6 @@ sudo mv composer.phar /usr/local/bin/composer
 sudo composer install
 
 echo -e "${YELLOW}[?] Création du fichier /etc/cubed/config.yml...${NC}"
-
 sudo mkdir -p /etc/cubed
 
 cat > /etc/cubed/config.yml <<EOL
@@ -134,5 +133,14 @@ database:
   database: "panel"
   port: "3306"
 EOL
+
+echo -e "${YELLOW}[?] Installation de SDKMAN! ...${NC}"
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+echo -e "${GREEN}SDKMAN! installé avec succès.${NC}"
+
+echo -e "${YELLOW}[?] Installation de Java via SDKMAN!...${NC}"
+sdk install java 17.0.7-tem
 
 echo -e "${GREEN}Installation terminée avec succès.${NC}"
