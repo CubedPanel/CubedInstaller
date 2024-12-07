@@ -7,7 +7,7 @@ NC='\033[0m'
 
 sudo apt update && sudo apt full-upgrade -y
 echo -e "${YELLOW}[?] Installation de PHP...${NC}"
-sudo apt install -y php php-cli php-fpm php-mysql php-xml php-mbstring php-json php-yaml unzip curl git
+sudo apt install -y php php-cli php-fpm php-mysql php-xml php-mbstring php-json php-yaml unzip curl git zip
 
 php_version=$(php -v | head -n 1)
 echo -e "${GREEN}PHP installé avec succès : $php_version${NC}"
